@@ -1,5 +1,5 @@
 import { Button, Card, Form, Input, message, Modal, Select, Space, Table, Typography } from 'antd'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import moment from "moment";
 import TimeService from '../../services/TimeService';
 const { Title, Text } = Typography;
@@ -106,8 +106,38 @@ const dataSource = [
     }
 ]
 function Lesson(props) {
+    const columnCalendar = [
+        {
+            title: 'Огноо',
+            dataIndex: 'date',
+            key: 'date',
+            render: (created_at) => {
+                return moment(created_at).format("YYYY-MM-DD");
+            },
+        },
+        {
+            title: 'Өдөр',
+            dataIndex: 'day',
+            key: 'day',
+        },
+        {
+            title: 'Цаг',
+            dataIndex: 'time',
+            key: 'time',
+        },
+    ];
 
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [calendarModalVisible, setCalendarModalVisible] = useState(false);
+    const [calendars, setCalendars] = useState([]);
+    useEffect(() => {
+        TimeService.getCalendar().then((res) => {
+            if (res.code == 200) {
+                setCalendars(res.data);
+                console.log(res.data);
+            }
+        })
+    },[])
 
     const trainingButton = () => {
         switch (props.userInfo?.type) {
@@ -121,9 +151,65 @@ function Lesson(props) {
                 return null;
         }
     }
+    const managerButton = () => {
+        switch (props.data?.status) {
+            case 'Үүссэн':
+                return <div>
+                    <Button onClick={showModal} type="primary">Хуваарь оруулах</Button>
+                    <Modal title="Хичээлийн хуваарь оруулах" width={900} visible={isModalVisible} onCancel={closeModal} footer={null}>
+                        <Form
+                            name="basic"
+                            initialValues={{ remember: true }}
+                            onFinish={onFinish}
+                            autoComplete="off"
+                        >
+                            <Table dataSource={dataSource} columns={columns} />
+                            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                                <Button type="primary" htmlType="submit">
+                                    Submit
+                                </Button>
+                            </Form.Item>
+                        </Form>
+                    </Modal>
+                </div>
+            case 'Хуваарь оруулсан':
+                return <div>
+                    <Button type="primary" onClick={register} >Элсэлт авах</Button>
+                </div>
+            case 'Бүртгэл эхэлсэн':
+                return <div>
+                    <Button type="primary" >Бүртгэл хаах</Button>
+                </div>
+            default:
+                return null;
+        }
+
+    };
 
     const teacherButton = () => {
-        return null;
+        switch (props.data?.status) {
+            case 'Бүртгэл эхэлсэн':
+                return <div>
+                    <Button type="primary" onClick={showModal} >Хичээлийн хуваарь харах</Button>
+                    <Modal title="Хичээлийн хуваарь" width={900} visible={calendarModalVisible} onCancel={closeModal} footer={null}>
+                        <Form
+                            name="basic"
+                            initialValues={{ remember: true }}
+                            onFinish={onFinish}
+                            autoComplete="off"
+                        >
+                            <Table dataSource={calendars} columns={columnCalendar} />
+                            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                                <Button type="primary" htmlType="submit">
+                                    Submit
+                                </Button>
+                            </Form.Item>
+                        </Form>
+                    </Modal>
+                </div>
+            default:
+                return null;
+        }
     }
     const studentButton = () => {
         switch (props.data?.status) {
@@ -160,47 +246,15 @@ function Lesson(props) {
     };
     const showModal = () => {
         setIsModalVisible(true);
+        setCalendarModalVisible(true);
     };
     const closeModal = () => {
         setIsModalVisible(false);
+        setCalendarModalVisible(false);
     };
 
 
-    const managerButton = () => {
-        switch (props.data?.status) {
-            case 'Үүссэн':
-                return <div>
-                    <Button onClick={showModal} type="primary">Хуваарь оруулах</Button>
-                    <Modal title="Хичээлийн хуваарь оруулах" width={900} visible={isModalVisible} onCancel={closeModal} footer={null}>
-                        <Form
-                            name="basic"
-                            initialValues={{ remember: true }}
-                            onFinish={onFinish}
-                            autoComplete="off"
-                        >
-                            <Table dataSource={dataSource} columns={columns} />
-                            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                                <Button type="primary" htmlType="submit">
-                                    Submit
-                                </Button>
-                            </Form.Item>
-                        </Form>
-                    </Modal>
-                </div>
-            case 'Хуваарь оруулсан':
-                return <div>
-                    <Button type="primary" onClick={register} >Элсэлт авах</Button>
-                </div>
-            case 'Бүртгэл эхэлсэн':
-                return <div>
-                    <Button type="primary" >Бүртгэл хаах</Button>
-                </div>
-            default:
-                return null;
-        }
-        return null;
 
-    };
     return (
         <Card>
             <Title level={3}>{`${props.data.lesson_id.name}/${props.data.level_id.name}`}</Title>

@@ -32,13 +32,11 @@ const Home = () => {
         UserService.getUserInfo().then((res) => {
             if (res.code == 200) {
                 setUserInfo(res.data);
-                console.log(res.data);
             }
         });
         TrainingService.getTraining().then((res) => {
             if (res.code == 200) {
                 setTraining(res.data);
-                console.log(res.data);
             }
         })
     }, []);

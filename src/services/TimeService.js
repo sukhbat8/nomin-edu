@@ -1,4 +1,4 @@
-import { postRequest } from "./ApiService";
+import { postRequest, getRequest } from "./ApiService";
 
 class TimeService {
     saveCalendar = async (data) => {
@@ -7,6 +7,10 @@ class TimeService {
     };
     saveRegister = async (data) => {
         const res = await postRequest("/time/saveRegister", data);
+        return res;
+    };
+    getCalendar = async () => {
+        const res = await getRequest("/time/getCalendar");
         return res;
     };
 }
