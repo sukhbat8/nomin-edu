@@ -12,7 +12,7 @@ const columns = [
         render: (text) => {
             return <div>
                 <Form.Item name="monday" value={1} >
-                    <Select  style={{ width: 130 }} >
+                    <Select style={{ width: 130 }} >
                         <Option value="10:00 - 11:30">10:00 - 11:30</Option>
                         <Option value="13:40 - 13:10">13:40 - 13:10</Option>
                         <Option value="13:40 - 15:10">13:40 - 15:10</Option>
@@ -126,7 +126,14 @@ function Lesson(props) {
         return null;
     }
     const studentButton = () => {
-        return null;
+        switch (props.data?.status) {
+            case 'Бүртгэл эхэлсэн':
+                return <div>
+                    <Button type="primary" >Бүртгүүлэх</Button>
+                </div>
+            default:
+                return null;
+        }
     }
     const onFinish = (values) => {
         TimeService.saveCalendar({
@@ -134,10 +141,20 @@ function Lesson(props) {
             startDate: moment(props.data.startDate).format('YYYY-MM-DD'),
             endDate: moment(props.data.endDate).format('YYYY-MM-DD'),
             training_id: props.data._id
-        }).then((res) =>{
-            if(res.code == 200){
+        }).then((res) => {
+            if (res.code == 200) {
                 closeModal();
                 message.success('Хуваарь амжилттай хадгалагдлаа!');
+            }
+        })
+    };
+    const register = () => {
+        TimeService.saveRegister({
+            training_id: props.data._id
+        }).then((res) => {
+            if (res.code == 200) {
+                closeModal();
+                message.success('Амжилттай элсэлт авч эхэллээ!');
             }
         })
     };
@@ -172,7 +189,11 @@ function Lesson(props) {
                 </div>
             case 'Хуваарь оруулсан':
                 return <div>
-                    <Button type="primary">Элсэлт авах</Button>
+                    <Button type="primary" onClick={register} >Элсэлт авах</Button>
+                </div>
+            case 'Бүртгэл эхэлсэн':
+                return <div>
+                    <Button type="primary" >Бүртгэл хаах</Button>
                 </div>
             default:
                 return null;

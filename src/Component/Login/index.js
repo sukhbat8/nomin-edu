@@ -7,7 +7,10 @@ import UserService from '../../services/UserService';
 const Login = () => {
     const navigate = useNavigate();
     const onFinish = (values) => {
-        UserService.loginUser(values).then((data) => {
+        UserService.loginUser({
+            ...values,
+            type: 3
+        }).then((data) => {
             console.log(values);
             if(data.code == 200){
                 localStorage.setItem("token", data.data);
